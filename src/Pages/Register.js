@@ -1,8 +1,10 @@
 
 import {useState, useEffect, React} from 'react'
+import {useNavigate} from 'react-router-dom'
 import { Logo, FormRow, Alert } from '../components'
 import Wrapper from '../assets/wrappers/RegisterPage'
 import { useAppContext } from '../context/appContext'
+
 
 const initialState = {
     name: '',
@@ -16,7 +18,18 @@ const initialState = {
 const Register = () => {
   
     const [values,setValues] = useState(initialState)
-    const {isLoading, showAlert, displayAlert} = useAppContext()
+    const {isLoading, showAlert, displayAlert, registerUser, user } = useAppContext()
+ 
+    const navigate = useNavigate()
+
+    useEffect(()=>{
+      if(user){
+        setTimeout(()=>{
+          navigate('/')
+        }, 3000)
+      }
+    },[user,navigate])
+
 
   const toggleMember = () =>{
     setValues({...values, isMember: !values.isMember})
@@ -34,8 +47,15 @@ if(!email || !password ||( !isMember && !name) ){
   displayAlert()
   return
 }
-console.log(values)
+const currentUser = {name, email, password}
+if(isMember){
+  console.log('already a memeber')
+} else{
+  registerUser(currentUser)
+}
   }
+
+
     
     
   return (
@@ -55,7 +75,7 @@ console.log(values)
 
 
     
-        <button type="submit" className='btn btn-block'>Submit</button>
+        <button type="submit" className='btn btn-block' disabled={isLoading}>Submit</button>
       <p>
         {values.isMember? 'Not a member yet?': 'Already a member?'}
         <button type='button' onClick={toggleMember} className="member-btn"> {values.isMember ? "Register": "Login"}</button>
