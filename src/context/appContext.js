@@ -1,5 +1,9 @@
 import React, {useReducer, useContext} from "react"
-import { CLEAR_ALERT, DISPLAY_ALERT, REGISTER_USER_BEGIN, REGISTER_USER_ERROR, REGISTER_USER_SUCCESS, LOGIN_USER_BEGIN, LOGIN_USER_SUCCESS,  LOGIN_USER_ERROR, } from "./actions"
+import { 
+    CLEAR_ALERT, DISPLAY_ALERT, 
+
+    SETUP_USER_BEGIN, SETUP_USER_SUCCESS,SETUP_USER_ERROR, 
+} from "./actions"
 import reducer from "./reducer"
 import axios from "axios"
 
@@ -50,46 +54,67 @@ const clearAlert = () => {
         dispatch({type:CLEAR_ALERT})
     }, 3000)
    
+
 }
 
-const loginUser = async (currentUser) =>{
-    dispatch({type: LOGIN_USER_BEGIN})
+
+const setupUser = async ({currentUser, endPoint, alertText}) =>{
+    dispatch({type: SETUP_USER_BEGIN})
 
     try {
-        const response = await axios.post("/api/v1/auth/login", currentUser)
+        const response = await axios.post(`/api/v1/auth/${endPoint}`, currentUser)
         const {user, token, location} = response.data
-        dispatch({type:LOGIN_USER_SUCCESS, payload:{user,token,location}})
+        dispatch({type:SETUP_USER_SUCCESS, payload:{user,token,location,alertText}})
         addUserToLocalStorage({user,token,location})
     } catch (error) {
         //local staorge later
-        dispatch({type:LOGIN_USER_ERROR, payload: {msg: error.response.data.msg}})
+        dispatch({type:SETUP_USER_ERROR, payload: {msg: error.response.data.msg}})
         
     }
     clearAlert()
 }
 
 
-const registerUser = async (currentUser) =>{
-    //this sets the loading to true, and that will disable submit button
-    dispatch({type: REGISTER_USER_BEGIN})
+//LOGIN AND REGISGERED WHERE REFACTORED INTO SETUP USER
 
-    try {
-        const response = await axios.post("/api/v1/auth/register", currentUser)
-        const {user, token, location} = response.data
-        dispatch({type:REGISTER_USER_SUCCESS, payload:{user,token,location}})
-        addUserToLocalStorage({user,token,location})
-    } catch (error) {
-        //local staorge later
-        dispatch({type:REGISTER_USER_ERROR, payload: {msg: error.response.data.msg}})
+// const loginUser = async (currentUser) =>{
+//     dispatch({type: LOGIN_USER_BEGIN})
+
+//     try {
+//         const response = await axios.post("/api/v1/auth/login", currentUser)
+//         const {user, token, location} = response.data
+//         dispatch({type:LOGIN_USER_SUCCESS, payload:{user,token,location}})
+//         addUserToLocalStorage({user,token,location})
+//     } catch (error) {
+//         //local staorge later
+//         dispatch({type:LOGIN_USER_ERROR, payload: {msg: error.response.data.msg}})
         
-    }
-    clearAlert()
+//     }
+//     clearAlert()
+// }
+
+
+// const registerUser = async (currentUser) =>{
+//     //this sets the loading to true, and that will disable submit button
+//     dispatch({type: REGISTER_USER_BEGIN})
+
+//     try {
+//         const response = await axios.post("/api/v1/auth/register", currentUser)
+//         const {user, token, location} = response.data
+//         dispatch({type:REGISTER_USER_SUCCESS, payload:{user,token,location}})
+//         addUserToLocalStorage({user,token,location})
+//     } catch (error) {
+//         //local staorge later
+//         dispatch({type:REGISTER_USER_ERROR, payload: {msg: error.response.data.msg}})
+        
+//     }
+//     clearAlert()
     
-}
+// }
 
 return (
     <AppContext.Provider 
-        value={{...state,displayAlert, registerUser, loginUser}} >
+        value={{...state,displayAlert,setupUser}} >
             {children}
         </AppContext.Provider>
 )

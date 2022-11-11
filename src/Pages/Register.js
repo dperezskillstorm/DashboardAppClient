@@ -18,7 +18,8 @@ const initialState = {
 const Register = () => {
   
     const [values,setValues] = useState(initialState)
-    const {isLoading, showAlert, displayAlert, registerUser,  loginUser, user } = useAppContext()
+    // registerUser,  loginUser => was refactored into setup User
+    const {isLoading, showAlert, displayAlert, setupUser, user } = useAppContext()
  
     const navigate = useNavigate()
 
@@ -51,9 +52,10 @@ const Register = () => {
   const currentUser = {name, email, password}
 
   if(isMember){
-    loginUser(currentUser)
+    setupUser({currentUser, endPoint: "login", alertText: "Sucessfully Logged In, redirecting"})
   } else{
-    registerUser()
+    setupUser({currentUser, endPoint: "register", alertText: "User Created, redirecting"})
+
   }
 }
 
