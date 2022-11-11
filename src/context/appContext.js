@@ -1,5 +1,5 @@
 import React, {useReducer, useContext} from "react"
-import { CLEAR_ALERT, DISPLAY_ALERT, REGISTER_USER_BEGIN, REGISTER_USER_ERROR, REGISTER_USER_SUCCESS } from "./actions"
+import { CLEAR_ALERT, DISPLAY_ALERT, REGISTER_USER_BEGIN, REGISTER_USER_ERROR, REGISTER_USER_SUCCESS, LOGIN_USER_BEGIN, LOGIN_USER_SUCCESS,  LOGIN_USER_ERROR, } from "./actions"
 import reducer from "./reducer"
 import axios from "axios"
 
@@ -52,6 +52,23 @@ const clearAlert = () => {
    
 }
 
+const loginUser = async (currentUser) =>{
+    dispatch({type: LOGIN_USER_BEGIN})
+
+    try {
+        const response = await axios.post("/api/v1/auth/login", currentUser)
+        const {user, token, location} = response.data
+        dispatch({type:LOGIN_USER_SUCCESS, payload:{user,token,location}})
+        addUserToLocalStorage({user,token,location})
+    } catch (error) {
+        //local staorge later
+        dispatch({type:LOGIN_USER_ERROR, payload: {msg: error.response.data.msg}})
+        
+    }
+    clearAlert()
+}
+
+
 const registerUser = async (currentUser) =>{
     //this sets the loading to true, and that will disable submit button
     dispatch({type: REGISTER_USER_BEGIN})
@@ -72,12 +89,14 @@ const registerUser = async (currentUser) =>{
 
 return (
     <AppContext.Provider 
-        value={{...state,displayAlert, registerUser}} >
+        value={{...state,displayAlert, registerUser, loginUser}} >
             {children}
         </AppContext.Provider>
 )
 
 }
+
+
 
 const useAppContext = () =>{
     return useContext(AppContext)
